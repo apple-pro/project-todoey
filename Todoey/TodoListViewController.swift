@@ -10,11 +10,17 @@ import UIKit
 
 class TodoListViewController: UITableViewController, UITextFieldDelegate {
     
+    let defaults = UserDefaults.standard
     var todos = ["Run", "Bitch", "Run"]
     var todoToAdd = ""
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        if let safeTodos = defaults.array(forKey: "todos") as? [String] {
+            todos = safeTodos
+            tableView.reloadData()
+        }
     }
     
     @IBAction func add(_ sender: UIBarButtonItem) {
@@ -22,6 +28,7 @@ class TodoListViewController: UITableViewController, UITextFieldDelegate {
         let action = UIAlertAction(title: "Done", style: .default) { (action) in
             if !self.todoToAdd.isEmpty {
                 self.todos.append(self.todoToAdd)
+                self.defaults.set(self.todos, forKey: "todos")
                 self.tableView.reloadData()
             }
         }
