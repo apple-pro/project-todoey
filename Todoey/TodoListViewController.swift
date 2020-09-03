@@ -11,24 +11,20 @@ import UIKit
 class TodoListViewController: UITableViewController, UITextFieldDelegate {
     
     let defaults = UserDefaults.standard
-    var todos = ["Run", "Bitch", "Run"]
+    var todos: [Item] = [
+        Item(withTitle: "Test")
+    ]
     var todoToAdd = ""
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        if let safeTodos = defaults.array(forKey: "todos") as? [String] {
-            todos = safeTodos
-            tableView.reloadData()
-        }
     }
     
     @IBAction func add(_ sender: UIBarButtonItem) {
         let alert = UIAlertController(title: "Add", message: "Enter a Task Name", preferredStyle: .alert)
         let action = UIAlertAction(title: "Done", style: .default) { (action) in
             if !self.todoToAdd.isEmpty {
-                self.todos.append(self.todoToAdd)
-                self.defaults.set(self.todos, forKey: "todos")
+                self.todos.append(Item(withTitle: self.todoToAdd))
                 self.tableView.reloadData()
             }
         }
@@ -50,7 +46,10 @@ class TodoListViewController: UITableViewController, UITextFieldDelegate {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "TodoCell", for: indexPath)
-        cell.textLabel?.text = todos[indexPath.row]
+        let item = todos[indexPath.row]
+        
+        cell.textLabel?.text = item.title
+        cell.accessoryType = item.done ? .checkmark : .none
         
         return cell
     }
@@ -59,11 +58,10 @@ class TodoListViewController: UITableViewController, UITextFieldDelegate {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
+        let item = todos[indexPath.row]
+        item.done = !item.done
         
-        if let cell = tableView.cellForRow(at: indexPath) {
-            cell.accessoryType = cell.accessoryType == .none ? .checkmark : .none
-        }
-        
+        tableView.reloadRows(at: [indexPath], with: .fade)
     }
     
     func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
