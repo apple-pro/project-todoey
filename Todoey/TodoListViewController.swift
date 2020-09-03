@@ -7,24 +7,34 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListViewController: UITableViewController, UITextFieldDelegate {
     
-    let defaults = UserDefaults.standard
-    var todos: [Item] = [
-        Item(withTitle: "Test")
-    ]
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     var todoToAdd = ""
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        //if you wanna check your sqlite db
+        //cd <this>
+        //then: "open ."
+        //go to: Application Support
+        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
     }
     
     @IBAction func add(_ sender: UIBarButtonItem) {
         let alert = UIAlertController(title: "Add", message: "Enter a Task Name", preferredStyle: .alert)
         let action = UIAlertAction(title: "Done", style: .default) { (action) in
             if !self.todoToAdd.isEmpty {
-                self.todos.append(Item(withTitle: self.todoToAdd))
+                
+                let item = Item(context: self.context)
+                item.title = self.todoToAdd
+                item.done = false
+                
+                self.saveItems()
+                
                 self.tableView.reloadData()
             }
         }
@@ -40,16 +50,16 @@ class TodoListViewController: UITableViewController, UITextFieldDelegate {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        todos.count
+        0
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "TodoCell", for: indexPath)
-        let item = todos[indexPath.row]
+        //let item = todos[indexPath.row]
         
-        cell.textLabel?.text = item.title
-        cell.accessoryType = item.done ? .checkmark : .none
+        //cell.textLabel?.text = item.title
+        //cell.accessoryType = item.done ? .checkmark : .none
         
         return cell
     }
@@ -58,8 +68,8 @@ class TodoListViewController: UITableViewController, UITextFieldDelegate {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let item = todos[indexPath.row]
-        item.done = !item.done
+        //let item = todos[indexPath.row]
+        //item.done = !item.done
         
         tableView.reloadRows(at: [indexPath], with: .fade)
     }
@@ -68,5 +78,16 @@ class TodoListViewController: UITableViewController, UITextFieldDelegate {
         todoToAdd = textField.text!
     }
 
+    func saveItems() {
+        do {
+            try context.save()
+        } catch {
+            print("Error: \(error.localizedDescription)")
+        }
+    }
+    
+    func loadItems() {
+        
+    }
 }
 
