@@ -13,6 +13,7 @@ class TodoListViewController: UITableViewController, UITextFieldDelegate {
     
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     var todoToAdd = ""
+    var items = [Item]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,6 +23,7 @@ class TodoListViewController: UITableViewController, UITextFieldDelegate {
         //then: "open ."
         //go to: Application Support
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
+        loadItems()
     }
     
     @IBAction func add(_ sender: UIBarButtonItem) {
@@ -34,6 +36,7 @@ class TodoListViewController: UITableViewController, UITextFieldDelegate {
                 item.done = false
                 
                 self.saveItems()
+                self.loadItems()
                 
                 self.tableView.reloadData()
             }
@@ -50,16 +53,16 @@ class TodoListViewController: UITableViewController, UITextFieldDelegate {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        0
+        items.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "TodoCell", for: indexPath)
-        //let item = todos[indexPath.row]
+        let item = items[indexPath.row]
         
-        //cell.textLabel?.text = item.title
-        //cell.accessoryType = item.done ? .checkmark : .none
+        cell.textLabel?.text = item.title
+        cell.accessoryType = item.done ? .checkmark : .none
         
         return cell
     }
@@ -68,8 +71,9 @@ class TodoListViewController: UITableViewController, UITextFieldDelegate {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
-        //let item = todos[indexPath.row]
-        //item.done = !item.done
+        let item = items[indexPath.row]
+        item.done = !item.done
+        saveItems()
         
         tableView.reloadRows(at: [indexPath], with: .fade)
     }
@@ -87,7 +91,13 @@ class TodoListViewController: UITableViewController, UITextFieldDelegate {
     }
     
     func loadItems() {
-        
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        do {
+            items = try context.fetch(request)
+            tableView.reloadData()
+        } catch {
+            print("Error: \(error.localizedDescription)")
+        }
     }
 }
 
