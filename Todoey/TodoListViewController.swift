@@ -23,7 +23,7 @@ class TodoListViewController: UITableViewController {
         //then: "open ."
         //go to: Application Support
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
-        loadItems(nil)
+        loadItems()
     }
     
     @IBAction func add(_ sender: UIBarButtonItem) {
@@ -36,7 +36,7 @@ class TodoListViewController: UITableViewController {
                 item.done = false
                 
                 self.saveItems()
-                self.loadItems(nil)
+                self.loadItems()
                 
                 self.tableView.reloadData()
             }
@@ -60,7 +60,11 @@ class TodoListViewController: UITableViewController {
         }
     }
     
-    func loadItems(_ predicate: NSPredicate?) {
+    func loadItems() {
+        loadItems(with: nil)
+    }
+    
+    func loadItems(with predicate: NSPredicate?) {
         let request: NSFetchRequest<Item> = Item.fetchRequest()
         request.predicate = predicate
         request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
@@ -132,8 +136,12 @@ extension TodoListViewController: UISearchBarDelegate {
         print("Search: \(searchBar.text!)")
     
         if let safeText = searchBar.text {
-            let predicate = NSPredicate(format: "title CONTAINS[cd] %@", safeText)
-            loadItems(predicate)
+            if safeText.isEmpty {
+                loadItems()
+            } else {
+                let predicate = NSPredicate(format: "title CONTAINS[cd] %@", safeText)
+                loadItems(with: predicate)
+            }
         }
     }
 }
