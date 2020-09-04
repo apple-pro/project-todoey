@@ -78,6 +78,21 @@ class TodoListViewController: UITableViewController, UITextFieldDelegate {
         tableView.reloadRows(at: [indexPath], with: .fade)
     }
     
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        let delete = UIContextualAction(style: .destructive, title: "Delete") { (action, sourceView, completionHandler) in
+            self.context.delete(self.items[indexPath.row])
+            self.items.remove(at: indexPath.row)
+            self.saveItems()
+            self.tableView.reloadData()
+            completionHandler(true)
+        }
+
+        let swipeActionConfig = UISwipeActionsConfiguration(actions: [delete])
+        swipeActionConfig.performsFirstActionWithFullSwipe = false
+        return swipeActionConfig
+    }
+    
     func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
         todoToAdd = textField.text!
     }
