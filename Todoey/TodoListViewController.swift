@@ -63,6 +63,7 @@ class TodoListViewController: UITableViewController {
     func loadItems(_ predicate: NSPredicate?) {
         let request: NSFetchRequest<Item> = Item.fetchRequest()
         request.predicate = predicate
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
         
         do {
             items = try context.fetch(request)
