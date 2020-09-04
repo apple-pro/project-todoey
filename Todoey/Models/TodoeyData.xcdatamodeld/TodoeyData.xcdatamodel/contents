@@ -3,8 +3,14 @@
     <entity name="Item" representedClassName=".Item" syncable="YES" codeGenerationType="class">
         <attribute name="done" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="title" attributeType="String"/>
+        <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TodoeyCategory" inverseName="items" inverseEntity="TodoeyCategory"/>
+    </entity>
+    <entity name="TodoeyCategory" representedClassName=".TodoeyCategory" syncable="YES" codeGenerationType="class">
+        <attribute name="name" attributeType="String"/>
+        <relationship name="items" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Item" inverseName="category" inverseEntity="Item"/>
     </entity>
     <elements>
-        <element name="Item" positionX="-63" positionY="-18" width="128" height="73"/>
+        <element name="Item" positionX="-63" positionY="-18" width="128" height="88"/>
+        <element name="TodoeyCategory" positionX="-339.296875" positionY="-3.10546875" width="128" height="73"/>
     </elements>
 </model>
