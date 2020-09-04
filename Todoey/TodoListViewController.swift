@@ -125,4 +125,7 @@ extension TodoListViewController: UITextFieldDelegate {
 
 extension TodoListViewController: UISearchBarDelegate {
     
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        print("Search: \(searchBar.text!)")
+    }
 }
