@@ -134,10 +134,15 @@ extension TodoListViewController: UISearchBarDelegate {
         if let safeText = searchBar.text {
             if safeText.isEmpty {
                 loadItems()
+                
+                DispatchQueue.main.async {
+                    searchBar.resignFirstResponder()
+                }
             } else {
                 let predicate = NSPredicate(format: "title CONTAINS[cd] %@", safeText)
                 loadItems(with: predicate)
             }
         }
     }
+    
 }
