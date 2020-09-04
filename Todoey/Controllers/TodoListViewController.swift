@@ -26,7 +26,9 @@ class TodoListViewController: UITableViewController {
         //then: "open ."
         //go to: Application Support
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
-        loadItems()
+        
+        let predicate = NSPredicate(format: "category.name == %@", category!.name!)
+        loadItems(with: predicate)
     }
     
     @IBAction func add(_ sender: UIBarButtonItem) {
@@ -65,8 +67,9 @@ class TodoListViewController: UITableViewController {
     }
     
     func loadItems(with predicate: NSPredicate? = nil) {
+        let finalPred = predicate ?? NSPredicate(format: "category.name == %@", category!.name!)
         let request: NSFetchRequest<Item> = Item.fetchRequest()
-        request.predicate = predicate
+        request.predicate = finalPred
         request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
         
         do {
@@ -143,7 +146,7 @@ extension TodoListViewController: UISearchBarDelegate {
                     searchBar.resignFirstResponder()
                 }
             } else {
-                let predicate = NSPredicate(format: "title CONTAINS[cd] %@", safeText)
+                let predicate = NSPredicate(format: "title CONTAINS[cd] %@ and category.name == %@", safeText, category!.name!)
                 loadItems(with: predicate)
             }
         }
