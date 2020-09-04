@@ -11,12 +11,15 @@ import CoreData
 
 class TodoListViewController: UITableViewController {
     
+    var category: TodoeyCategory?
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     var todoToAdd = ""
     var items = [Item]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        title = category?.name
         
         //if you wanna check your sqlite db
         //cd <this>

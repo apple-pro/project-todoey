@@ -16,6 +16,7 @@ class CategoryTableViewController: UITableViewController {
     
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     var categories = [TodoeyCategory]()
+    var selectedCategory: TodoeyCategory?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -70,6 +71,33 @@ extension CategoryTableViewController {
         
         
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        let delete = UIContextualAction(style: .destructive, title: "Delete") { (action, sourceView, completionHandler) in
+            self.context.delete(self.categories[indexPath.row])
+            self.categories.remove(at: indexPath.row)
+            self.saveItems()
+            self.tableView.reloadData()
+            completionHandler(true)
+        }
+
+        let swipeActionConfig = UISwipeActionsConfiguration(actions: [delete])
+        swipeActionConfig.performsFirstActionWithFullSwipe = false
+        return swipeActionConfig
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        selectedCategory = categories[indexPath.row]
+        
+        performSegue(withIdentifier: "goToTodo", sender: self)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let todoVC = segue.destination as? TodoListViewController {
+            todoVC.category = selectedCategory
+        }
     }
 }
 
