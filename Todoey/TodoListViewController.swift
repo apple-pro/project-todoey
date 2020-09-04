@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class TodoListViewController: UITableViewController, UITextFieldDelegate {
+class TodoListViewController: UITableViewController {
     
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     var todoToAdd = ""
@@ -51,6 +51,27 @@ class TodoListViewController: UITableViewController, UITextFieldDelegate {
         todoToAdd = ""
         present(alert, animated: true, completion: nil)
     }
+
+    func saveItems() {
+        do {
+            try context.save()
+        } catch {
+            print("Error: \(error.localizedDescription)")
+        }
+    }
+    
+    func loadItems() {
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        do {
+            items = try context.fetch(request)
+            tableView.reloadData()
+        } catch {
+            print("Error: \(error.localizedDescription)")
+        }
+    }
+}
+
+extension TodoListViewController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         items.count
@@ -93,26 +114,15 @@ class TodoListViewController: UITableViewController, UITextFieldDelegate {
         return swipeActionConfig
     }
     
-    func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
-        todoToAdd = textField.text!
-    }
+}
 
-    func saveItems() {
-        do {
-            try context.save()
-        } catch {
-            print("Error: \(error.localizedDescription)")
-        }
-    }
+extension TodoListViewController: UITextFieldDelegate {
     
-    func loadItems() {
-        let request: NSFetchRequest<Item> = Item.fetchRequest()
-        do {
-            items = try context.fetch(request)
-            tableView.reloadData()
-        } catch {
-            print("Error: \(error.localizedDescription)")
-        }
+    func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
+        self.todoToAdd = textField.text!
     }
 }
 
+extension TodoListViewController: UISearchBarDelegate {
+    
+}
