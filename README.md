@@ -16,3 +16,8 @@ A simple ToDo list app to demonstrate the various on-device data storage solutio
 ![Step 2: Add Data Model File](Docs/core_data_step2.png)
 - define the data model
 ![Step 3: Define Model](Docs/core_data_step3.png)
+
+## NSPredicate
+The lovechild of regex and sql
+
+[Cheatsheet](https://academy.realm.io/posts/nspredicate-cheatsheet/)
