@@ -35,6 +35,7 @@ class TodoListViewController: UITableViewController {
             if !self.todoToAdd.isEmpty {
                 
                 let item = Item(context: self.context)
+                item.category = self.category
                 item.title = self.todoToAdd
                 item.done = false
                 
