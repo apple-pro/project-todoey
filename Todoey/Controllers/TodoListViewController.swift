@@ -31,16 +31,7 @@ class TodoListViewController: UITableViewController {
         
         tableView.rowHeight = 80
         tableView.separatorStyle = .none
-        
-        if let safeCat = category {
-            title = safeCat.name
-            navigationController?.navigationBar.barTintColor = UIColor(hexString: safeCat.color)
-        } else {
-            title = "Todoey"
-            navigationController?.navigationBar.barTintColor = UIColor.systemBackground
-        }
-        
-        
+
         //if you wanna check your sqlite db
         //cd <this>
         //then: "open ."
@@ -49,6 +40,17 @@ class TodoListViewController: UITableViewController {
         
         //this if for realm
         print("Realm Location: \(Realm.Configuration.defaultConfiguration.fileURL?.absoluteString ?? "Unknown")")
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if let safeCat = category {
+            title = safeCat.name
+            navigationController?.navigationBar.backgroundColor = UIColor(hexString: safeCat.color)
+            searchBar?.backgroundColor = UIColor(hexString: safeCat.color)
+        } else {
+            title = "Todoey"
+            navigationController?.navigationBar.backgroundColor = UIColor.systemBackground
+        }
     }
     
     @IBAction func add(_ sender: UIBarButtonItem) {
@@ -122,10 +124,12 @@ extension TodoListViewController {
     }
     
     private func computeColor(color: UIColor, forIndex indexPath: IndexPath) -> UIColor {
+
+        let percent = CGFloat(indexPath.row) / CGFloat((items?.count ?? 0) + 10)
         
-        let percent = Float(indexPath.row) / Float(items?.count ?? 0 + 100)
+        print("Darken: \(percent)")
         
-        return color.darken(byPercentage: CGFloat(percent))!
+        return color.darken(byPercentage: percent)!
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
