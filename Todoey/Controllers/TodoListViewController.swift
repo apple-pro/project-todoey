@@ -52,7 +52,11 @@ class TodoListViewController: UITableViewController {
         }
         
         searchBar.barTintColor = navigationController?.navigationBar.backgroundColor
-        navigationController?.navigationBar.tintColor = ContrastColorOf(navigationController?.navigationBar.backgroundColor ?? UIColor.systemBackground, returnFlat: true)
+        
+        let contrastColor = ContrastColorOf(navigationController?.navigationBar.backgroundColor ?? UIColor.systemBackground, returnFlat: true)
+        
+        navigationController?.navigationBar.tintColor = contrastColor
+        navigationController?.navigationBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: contrastColor]
     }
     
     @IBAction func add(_ sender: UIBarButtonItem) {
