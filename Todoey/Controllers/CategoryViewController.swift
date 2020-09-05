@@ -75,7 +75,7 @@ extension CategoryTableViewController {
         }
 
         let swipeActionConfig = UISwipeActionsConfiguration(actions: [delete])
-        swipeActionConfig.performsFirstActionWithFullSwipe = false
+        swipeActionConfig.performsFirstActionWithFullSwipe = true
         return swipeActionConfig
     }
     
