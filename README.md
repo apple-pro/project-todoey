@@ -21,3 +21,8 @@ A simple ToDo list app to demonstrate the various on-device data storage solutio
 The lovechild of regex and sql
 
 [Cheatsheet](https://academy.realm.io/posts/nspredicate-cheatsheet/)
+
+## Realm
+The cooler way of persisting data
+![Setup 1](Docs/realm_setup.png)
+![Setup 2](Docs/realm_setup2.png)
