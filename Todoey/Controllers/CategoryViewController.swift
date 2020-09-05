@@ -26,6 +26,12 @@ class CategoryTableViewController: UITableViewController {
         tableView.rowHeight = 80
         tableView.separatorStyle = .none
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        navigationController?.navigationBar.backgroundColor = UIColor.black
+        textInput?.barTintColor = navigationController?.navigationBar.backgroundColor
+        tableView.backgroundColor = navigationController?.navigationBar.backgroundColor
+    }
 
     @IBAction func add(_ sender: UIBarButtonItem) {
         if let safeText = textInput.text, !safeText.isEmpty {

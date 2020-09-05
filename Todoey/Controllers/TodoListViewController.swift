@@ -46,11 +46,12 @@ class TodoListViewController: UITableViewController {
         if let safeCat = category {
             title = safeCat.name
             navigationController?.navigationBar.backgroundColor = UIColor(hexString: safeCat.color)
-            searchBar?.backgroundColor = UIColor(hexString: safeCat.color)
         } else {
             title = "Todoey"
             navigationController?.navigationBar.backgroundColor = UIColor.systemBackground
         }
+        
+        searchBar.barTintColor = navigationController?.navigationBar.backgroundColor
     }
     
     @IBAction func add(_ sender: UIBarButtonItem) {
