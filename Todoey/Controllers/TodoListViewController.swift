@@ -71,7 +71,7 @@ class TodoListViewController: UITableViewController {
     }
     
     func loadItems(with predicate: NSPredicate? = nil) {
-        items = category?.items.sorted(byKeyPath: "title", ascending: true)
+        items = category?.items.sorted(byKeyPath: "dateCreated", ascending: true)
         
         if let safePred = predicate {
             items = items?.filter(safePred)
