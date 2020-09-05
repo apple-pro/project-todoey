@@ -11,7 +11,12 @@ import CoreData
 
 class TodoListViewController: UITableViewController {
     
-    var category: TodoeyCategory?
+    var category: TodoeyCategory? {
+        didSet {
+            loadItems()
+        }
+    }
+    
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     var todoToAdd = ""
     var items = [Item]()
@@ -26,9 +31,6 @@ class TodoListViewController: UITableViewController {
         //then: "open ."
         //go to: Application Support
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
-        
-        let predicate = NSPredicate(format: "category.name == %@", category!.name!)
-        loadItems(with: predicate)
     }
     
     @IBAction func add(_ sender: UIBarButtonItem) {
