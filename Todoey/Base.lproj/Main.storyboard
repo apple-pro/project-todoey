@@ -85,7 +85,6 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="Todoey" id="fDg-OA-jhi">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="Bbu-Gt-Nns">
-                            <color key="tintColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
                             <connections>
                                 <action selector="add:" destination="JTF-kb-M6X" id="7qQ-Ww-rgc"/>
                             </connections>
