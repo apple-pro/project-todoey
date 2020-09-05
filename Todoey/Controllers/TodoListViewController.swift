@@ -8,12 +8,16 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
 class TodoListViewController: UITableViewController {
+    
+    @IBOutlet weak var searchBar: UISearchBar!
     
     var category: RCategory? {
         didSet {
             loadItems()
+            view.backgroundColor = UIColor(hexString: category!.color)
         }
     }
     
@@ -25,7 +29,17 @@ class TodoListViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        title = category?.name
+        tableView.rowHeight = 80
+        tableView.separatorStyle = .none
+        
+        if let safeCat = category {
+            title = safeCat.name
+            navigationController?.navigationBar.barTintColor = UIColor(hexString: safeCat.color)
+        } else {
+            title = "Todoey"
+            navigationController?.navigationBar.barTintColor = UIColor.systemBackground
+        }
+        
         
         //if you wanna check your sqlite db
         //cd <this>
@@ -95,7 +109,23 @@ extension TodoListViewController {
         cell.textLabel?.text = item.title
         cell.accessoryType = item.done ? .checkmark : .none
         
+        if let safeCat = category {
+            let bgColor = computeColor(color: UIColor(hexString: safeCat.color)!, forIndex: indexPath)
+            cell.backgroundColor = bgColor
+            cell.textLabel?.textColor = ContrastColorOf(bgColor, returnFlat: true)
+        } else {
+            cell.backgroundColor = FlatBlue()
+        }
+        
+        
         return cell
+    }
+    
+    private func computeColor(color: UIColor, forIndex indexPath: IndexPath) -> UIColor {
+        
+        let percent = Float(indexPath.row) / Float(items?.count ?? 0 + 100)
+        
+        return color.darken(byPercentage: CGFloat(percent))!
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

@@ -8,6 +8,7 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
 class CategoryTableViewController: UITableViewController {
     
@@ -21,6 +22,9 @@ class CategoryTableViewController: UITableViewController {
         super.viewDidLoad()
         
         loadCategories()
+        
+        tableView.rowHeight = 80
+        tableView.separatorStyle = .none
     }
 
     @IBAction func add(_ sender: UIBarButtonItem) {
@@ -58,7 +62,13 @@ extension CategoryTableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
         
-        cell.textLabel?.text = categories?[indexPath.row].name
+        if let category = categories?[indexPath.row] {
+            cell.textLabel?.text = category.name
+            
+            let bgColor = UIColor(hexString: category.color)
+            cell.textLabel?.textColor = ContrastColorOf(bgColor!, returnFlat: true)
+            cell.backgroundColor = bgColor
+        }
         
         return cell
     }
