@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import RealmSwift
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -16,6 +17,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        
+        print("Real Location: \(Realm.Configuration.defaultConfiguration.fileURL?.absoluteString ?? "Unknown")")
+        
+        let demo = Demo()
+        let item = DemoItem()
+        demo.items.append(item)
+        
+        let realm = try! Realm()
+        try! realm.write {
+            realm.add(demo)
+        }
+        
         return true
     }
 
@@ -57,4 +71,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
 }
+
+class DemoItem: Object {
+    @objc dynamic var name = "Test"
+    @objc dynamic var age = 0
+}
+
+class Demo: Object {
+    @objc dynamic var name = "Test"
+    @objc dynamic var age = 0
+    var items = List<DemoItem>()
+}
+
 
