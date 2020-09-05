@@ -7,19 +7,20 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class TodoListViewController: UITableViewController {
     
-    var category: TodoeyCategory? {
+    var category: RCategory? {
         didSet {
             loadItems()
         }
     }
     
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    let realm = try! Realm()
+    var items: Results<RItem>?
+    
     var todoToAdd = ""
-    var items = [Item]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,6 +32,9 @@ class TodoListViewController: UITableViewController {
         //then: "open ."
         //go to: Application Support
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
+        
+        //this if for realm
+        print("Realm Location: \(Realm.Configuration.defaultConfiguration.fileURL?.absoluteString ?? "Unknown")")
     }
     
     @IBAction func add(_ sender: UIBarButtonItem) {
@@ -38,12 +42,11 @@ class TodoListViewController: UITableViewController {
         let action = UIAlertAction(title: "Done", style: .default) { (action) in
             if !self.todoToAdd.isEmpty {
                 
-                let item = Item(context: self.context)
-                item.category = self.category
+                let item = RItem()
                 item.title = self.todoToAdd
                 item.done = false
                 
-                self.saveItems()
+                self.save(item: item)
                 self.loadItems()
                 
                 self.tableView.reloadData()
@@ -60,39 +63,34 @@ class TodoListViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
 
-    func saveItems() {
-        do {
-            try context.save()
-        } catch {
-            print("Error: \(error.localizedDescription)")
+    func save(item: RItem) {
+        try! realm.write {
+            self.category?.items.append(item)
+            realm.add(item)
         }
     }
     
     func loadItems(with predicate: NSPredicate? = nil) {
-        let finalPred = predicate ?? NSPredicate(format: "category.name == %@", category!.name!)
-        let request: NSFetchRequest<Item> = Item.fetchRequest()
-        request.predicate = finalPred
-        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        items = category?.items.sorted(byKeyPath: "title", ascending: true)
         
-        do {
-            items = try context.fetch(request)
-            tableView.reloadData()
-        } catch {
-            print("Error: \(error.localizedDescription)")
+        if let safePred = predicate {
+            items = items?.filter(safePred)
         }
+        
+        tableView.reloadData()
     }
 }
 
 extension TodoListViewController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        items.count
+        items?.count ?? 0
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "TodoCell", for: indexPath)
-        let item = items[indexPath.row]
+        let item = items![indexPath.row]
         
         cell.textLabel?.text = item.title
         cell.accessoryType = item.done ? .checkmark : .none
@@ -104,9 +102,11 @@ extension TodoListViewController {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let item = items[indexPath.row]
-        item.done = !item.done
-        saveItems()
+        let item = items![indexPath.row]
+        
+        try! realm.write {
+            item.done = !item.done
+        }
         
         tableView.reloadRows(at: [indexPath], with: .fade)
     }
@@ -114,9 +114,9 @@ extension TodoListViewController {
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
         let delete = UIContextualAction(style: .destructive, title: "Delete") { (action, sourceView, completionHandler) in
-            self.context.delete(self.items[indexPath.row])
-            self.items.remove(at: indexPath.row)
-            self.saveItems()
+            try! self.realm.write {
+                self.realm.delete(self.items![indexPath.row])
+            }
             self.tableView.reloadData()
             completionHandler(true)
         }
@@ -148,7 +148,7 @@ extension TodoListViewController: UISearchBarDelegate {
                     searchBar.resignFirstResponder()
                 }
             } else {
-                let predicate = NSPredicate(format: "title CONTAINS[cd] %@ and category.name == %@", safeText, category!.name!)
+                let predicate = NSPredicate(format: "title CONTAINS[cd] %@", safeText)
                 loadItems(with: predicate)
             }
         }

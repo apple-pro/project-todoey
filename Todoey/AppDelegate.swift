@@ -19,16 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         
         
-        print("Real Location: \(Realm.Configuration.defaultConfiguration.fileURL?.absoluteString ?? "Unknown")")
         
-        let demo = Demo()
-        let item = DemoItem()
-        demo.items.append(item)
-        
-        let realm = try! Realm()
-        try! realm.write {
-            realm.add(demo)
-        }
         
         return true
     }
@@ -70,17 +61,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
-}
-
-class DemoItem: Object {
-    @objc dynamic var name = "Test"
-    @objc dynamic var age = 0
-}
-
-class Demo: Object {
-    @objc dynamic var name = "Test"
-    @objc dynamic var age = 0
-    var items = List<DemoItem>()
 }
 
 

@@ -7,67 +7,58 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class CategoryTableViewController: UITableViewController {
     
     @IBOutlet weak var textInput: UISearchBar!
     @IBOutlet weak var addBarButton: UIBarButtonItem!
     
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-    var categories = [TodoeyCategory]()
+    let realm = try! Realm()
+    var categories: Results<RCategory>? //this is like context and arrray combined, autorefresh included
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        loadItems()
+        loadCategories()
     }
 
     @IBAction func add(_ sender: UIBarButtonItem) {
         if let safeText = textInput.text, !safeText.isEmpty {
-            let category = TodoeyCategory(context: self.context)
-            category.name = safeText
-            textInput.text = ""
-            categories.append(category)
             
-            saveItems()
-            loadItems()
-        }
-    }
-    
-    func saveItems() {
-        do {
-            try context.save()
-        } catch {
-            print("Error: \(error.localizedDescription)")
-        }
-    }
-    
-    func loadItems(with predicate: NSPredicate? = nil) {
-        let request: NSFetchRequest<TodoeyCategory> = TodoeyCategory.fetchRequest()
-        request.predicate = predicate
-        request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
-
-        do {
-            categories = try context.fetch(request)
+            let category = RCategory()
+            category.name = safeText
+            
+            textInput.text = ""
+            
+            transact {
+                realm.add(category)
+            }
+            
             tableView.reloadData()
-        } catch {
-            print("Error: \(error.localizedDescription)")
         }
+    }
+    
+    func loadCategories(with predicate: NSPredicate? = nil) {
+        categories = realm.objects(RCategory.self).sorted(byKeyPath: "name")
+        tableView.reloadData()
+    }
+    
+    func transact(_ action: () -> Void) {
+        try! realm.write(action)
     }
 }
 
 extension CategoryTableViewController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return categories.count
+        return categories?.count ?? 0
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
         
-        cell.textLabel?.text = categories[indexPath.row].name
-        
+        cell.textLabel?.text = categories?[indexPath.row].name
         
         return cell
     }
@@ -75,11 +66,12 @@ extension CategoryTableViewController {
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
         let delete = UIContextualAction(style: .destructive, title: "Delete") { (action, sourceView, completionHandler) in
-            self.context.delete(self.categories[indexPath.row])
-            self.categories.remove(at: indexPath.row)
-            self.saveItems()
+            self.transact {
+                if let toDelete = self.categories?[indexPath.row] {
+                    self.realm.delete(toDelete)
+                }
+            }
             self.tableView.reloadData()
-            completionHandler(true)
         }
 
         let swipeActionConfig = UISwipeActionsConfiguration(actions: [delete])
@@ -93,7 +85,9 @@ extension CategoryTableViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let todoVC = segue.destination as? TodoListViewController {
-            todoVC.category = categories[tableView.indexPathForSelectedRow!.row]
+            if let selectedCategory = categories?[tableView.indexPathForSelectedRow!.row] {
+                todoVC.category = selectedCategory
+            }
         }
     }
 }
